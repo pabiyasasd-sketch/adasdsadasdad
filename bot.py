@@ -16,6 +16,12 @@ async def on_ready():
 async def start(ctx):
     await ctx.send("Hi! I'm a chat manager bot!")
 
+@bot.event
+async def on_member_join(member):
+    # Mengirim pesan ucapan selamat
+    for channel in member.guild.text_channels:
+        await channel.send(f'Welcome, {member.mention}!')
+
 @bot.command()
 @commands.has_permissions(ban_members=True)
 async def ban(ctx, member: discord.Member = None):
@@ -27,6 +33,17 @@ async def ban(ctx, member: discord.Member = None):
             await ctx.send(f"User {member.name} was banned.")
     else:
         await ctx.send("This command should point to the user you want to ban. For example: `!ban @user`")
+
+@bot.command()
+async def kick(ctx, member: discord.Member = None):
+    if member:
+        if ctx.author.top_role <= member.top_role:
+            await ctx.send("It is not possible to kick a user with equal or higher rank!")
+        else:
+            await ctx.guild.kick(member)
+            await ctx.send(f"User {member.name} was kicked.")
+    else:
+        await ctx.send("This command should point to the user you want to kick. For example: `!kick @user`")
 
 @ban.error
 async def ban_error(ctx, error):
